@@ -23,4 +23,18 @@ COPY ./init/ ./
 
 # Use entrypoint to differentiate build process between dev and prod
 RUN chmod +x entrypoint.sh
-ENTRYPOINT [ "./entrypoint.sh" ]
+RUN export NODE_ENV=production
+
+    # Minify Javascript files and create distribution folder (dist)
+RUN npm run build
+
+    # Move files to app root folder
+RUN cp -a ./dist/. ./
+
+    # Delete all unnecessary files
+RUN rm -rf ./dist
+RUN rm -rf ./node_modules
+RUN rm -rf ./public
+RUN rm -rf ./src
+
+ENTRYPOINT [ "http-server", "." ]
